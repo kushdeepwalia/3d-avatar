@@ -132,7 +132,7 @@ export default function Page() {
                //break;
             default:
                utterance.pitch = 1.0;
-               utterance.rate = 0.8;
+               utterance.rate = 1.0;
          }
 
          utterance.onstart = () => setIsSpeaking(true);
