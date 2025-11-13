@@ -114,25 +114,25 @@ export default function Page() {
          utterance.voice = voiceSelected;
 
          switch (mood) {
-            case "happy":
-               utterance.pitch = 2.3;
-               utterance.rate = 1.5;
-               break;
-            case "calm":
-               utterance.pitch = 1.0;
-               utterance.rate = 0.9;
-               break;
-            case "angry":
-               utterance.pitch = 0.8;
-               utterance.rate = 1.3;
-               break;
-            case "sad":
-               utterance.pitch = 0.7;
-               utterance.rate = 0.8;
-               break;
+            //case "happy":
+               //utterance.pitch = 2.3;
+               //utterance.rate = 1.5;
+               //break;
+            //case "calm":
+               //utterance.pitch = 1.0;
+               //utterance.rate = 0.9;
+               //break;
+            //case "angry":
+               //utterance.pitch = 0.8;
+               //utterance.rate = 1.3;
+               //break;
+            //case "sad":
+               //utterance.pitch = 0.7;
+               //utterance.rate = 0.8;
+               //break;
             default:
                utterance.pitch = 1.0;
-               utterance.rate = 1.0;
+               utterance.rate = 0.8;
          }
 
          utterance.onstart = () => setIsSpeaking(true);
