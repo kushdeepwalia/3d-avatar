@@ -108,8 +108,10 @@ export default function Page() {
          const voices = speechSynthesis.getVoices();
          console.log(voices);
          console.log(utterance);
-         utterance.voice =
-            voices.find((v) => v.name.includes("Microsoft Heera")) || null;
+         const voiceSelected =
+            voices.find((v) => v.name.includes("Microsoft Heera")) || voices[0];
+         console.log(voiceSelected);
+         utterance.voice = voiceSelected;
 
          switch (mood) {
             case "happy":
