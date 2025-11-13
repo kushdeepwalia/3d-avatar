@@ -116,7 +116,7 @@ export default function Page() {
          switch (mood) {
             case "happy":
                utterance.pitch = 2.3;
-               utterance.rate = 1.2;
+               utterance.rate = 1.1;
                break;
             case "calm":
                utterance.pitch = 1.0;
