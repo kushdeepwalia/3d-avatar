@@ -106,11 +106,11 @@ export default function Page() {
          setExpression(mood);
          const utterance = new SpeechSynthesisUtterance(text);
          const voices = speechSynthesis.getVoices();
-         console.log(voices);
-         console.log(utterance);
+         // console.log(voices);
+         // console.log(utterance);
          const voiceSelected =
             voices.find((v) => v.name.includes("Microsoft Heera")) || voices.find((v) => v.name.includes("Samantha")) || voices[0];
-         console.log(voiceSelected);
+         // console.log(voiceSelected);
          utterance.voice = voiceSelected;
 
          switch (mood) {
