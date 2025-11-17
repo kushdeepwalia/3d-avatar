@@ -59,17 +59,24 @@ async function askGPT(
 
    try {
       setThinking(true);
-      const response = await fetch("http://127.0.0.1:8000/chat", {
-         method: "POST",
-         headers: { "Content-Type": "application/json" },
-         body: JSON.stringify(requestBody),
-      });
+      // const response = await fetch("http://127.0.0.1:8000/chat", {
+      //    method: "POST",
+      //    headers: { "Content-Type": "application/json" },
+      //    body: JSON.stringify(requestBody),
+      // });
+
+      const response = await fetch(
+         `https://api.billioncolors.com/ask?prompt=${encodeURIComponent(
+            prompt
+         )}`
+      );
 
       const data = await response.json();
 
       // speak result
       setThinking(false);
-      speakWithEmotion(data.reply);
+      speakWithEmotion(data.response);
+      // speakWithEmotion(data.reply);
 
       // update history
       setChatHistory((prev) => [
@@ -186,14 +193,14 @@ function Avatar({
          scene.rotation.x = -0.3;
       }
       console.log(scene);
-      // const obj = "Wolf3D_Head";
-      // const head = scene.getObjectByName(obj) as THREE.SkinnedMesh;
-      // if (head && head.morphTargetDictionary) {
-      //    headRef.current = head;
-      //    // console.log("✅ Morph targets:", head.morphTargetDictionary);
-      // } else {
-      //    console.warn("⚠️ No morph targets found on " + obj);
-      // }
+      const obj = "Wolf3D_Head";
+      const head = scene.getObjectByName(obj) as THREE.SkinnedMesh;
+      if (head && head.morphTargetDictionary) {
+         headRef.current = head;
+         // console.log("✅ Morph targets:", head.morphTargetDictionary);
+      } else {
+         console.warn("⚠️ No morph targets found on " + obj);
+      }
    }, [scene, isRecognizer, modelPosition]);
 
    // 🎙️ Lip sync animation
