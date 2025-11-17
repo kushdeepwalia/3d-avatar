@@ -59,24 +59,29 @@ async function askGPT(
 
    try {
       setThinking(true);
+      const response = await fetch("https://9joeylte75.execute-api.ap-south-1.amazonaws.com/chat", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(requestBody),
+      });
       // const response = await fetch("http://127.0.0.1:8000/chat", {
       //    method: "POST",
       //    headers: { "Content-Type": "application/json" },
       //    body: JSON.stringify(requestBody),
       // });
 
-      const response = await fetch(
-         `https://api.billioncolors.com/ask?prompt=${encodeURIComponent(
-            prompt
-         )}`
-      );
+      // const response = await fetch(
+      //    `https://api.billioncolors.com/ask?prompt=${encodeURIComponent(
+      //       prompt
+      //    )}`
+      // );
 
       const data = await response.json();
 
       // speak result
       setThinking(false);
-      speakWithEmotion(data.response);
-      // speakWithEmotion(data.reply);
+      // speakWithEmotion(data.response);
+      speakWithEmotion(data.reply);
 
       // update history
       setChatHistory((prev) => [
