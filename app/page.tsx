@@ -240,7 +240,7 @@ export default function Page() {
          utter.voice = voiceSelected;
 
          // Apply voice settings for the mood
-         switch (segments[0].mood) {
+         switch (segments[0].mood as any) {
             case "greeting":
             case "happy":
                utter.pitch = 1.3;
