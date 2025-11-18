@@ -340,7 +340,7 @@ export default function Page() {
 
    // Your test dialogue, unchanged
    const testDialogue =
-      "[happy] Hey there! It’s great to see you. [thinking] Let's take a moment to think carefully. [sad] I can’t believe that happened! [angry] Sometimes things just don’t go our way.";
+      "[greeting] Hey there! It’s great to see you. [thinking] Let's take a moment to think carefully. [sad] I can’t believe that happened! [angry] Sometimes things just don’t go our way.";
 
    return (
       // --- JSX is unchanged, it looks great ---
@@ -386,7 +386,8 @@ export default function Page() {
                </Canvas>
                {recognizer === null && (
                   <button
-                     onClick={async () =>
+                     onClick={async () => {
+                        setModelPosition("far");
                         setRecognizer(
                            await initSpeechRecognition(
                               setListening,
@@ -398,8 +399,8 @@ export default function Page() {
                               setThinking,
                               testDialogue
                            )
-                        )
-                     }
+                        );
+                     }}
                      className="
                   relative px-[72px] py-5 rounded-full text-white font-semibold
                   bg-white/10 backdrop-blur-xs
