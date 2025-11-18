@@ -241,6 +241,7 @@ export default function Page() {
 
          // Apply voice settings for the mood
          switch (segments[0].mood) {
+            case "greeting":
             case "happy":
                utter.pitch = 1.3;
                utter.rate = 1.4;
