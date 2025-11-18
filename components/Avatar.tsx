@@ -107,6 +107,9 @@ export default function Avatar({
          case "happy":
             manager.play("HappyHand");
             break;
+         case "greeting":
+            manager.play("Greeting");
+            break;
          case "sad":
             manager.play("SadIdle");
             break;
