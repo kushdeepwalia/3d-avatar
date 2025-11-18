@@ -2,9 +2,16 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, useFBX, useGLTF } from "@react-three/drei";
+import {
+   OrbitControls,
+   useFBX,
+   useGLTF,
+   useAnimations,
+} from "@react-three/drei";
+import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 import * as THREE from "three";
 import { Maximize, MicrophoneLarge, Minimize } from "@solar-icons/react";
+import Avatar from "@/components/Avatar";
 
 // --- Type Definitions ---
 
@@ -170,84 +177,12 @@ async function initSpeechRecognition(
    return recognition; // return recognizer instance
 }
 
-// --- 3D Avatar Component (Unchanged) ---
-function Avatar({
-   modelPosition,
-   isRecognizer,
-   isSpeaking,
-}: {
-   modelPosition: string;
-   isRecognizer: boolean;
-   isSpeaking: boolean;
-}) {
-   // --- This component is identical to your provided code ---
-   // const scene = useFBX("/Teacher.fbx");
-   const { scene } = useGLTF("/avatar1.glb");
-   const headRef = useRef<THREE.SkinnedMesh | null>(null);
-   const t = useRef(0);
-
-   useEffect(() => {
-      if (modelPosition === "far" && isRecognizer) {
-         let scale = 1.8;
-         scene.scale.set(scale, scale, scale);
-         scene.position.set(0, -2.7, -1.3);
-         scene.rotation.y = Math.PI * 2;
-         scene.rotation.x = -0.2;
-      } else {
-         let scale = 4.8;
-         scene.scale.set(scale, scale, scale);
-         scene.position.set(0, -7.9, -1.3);
-         scene.rotation.y = Math.PI * 2;
-         scene.rotation.x = -0.3;
-      }
-      console.log(scene);
-      const obj = "Wolf3D_Head";
-      const head = scene.getObjectByName(obj) as THREE.SkinnedMesh;
-      if (head && head.morphTargetDictionary) {
-         headRef.current = head;
-         // console.log("✅ Morph targets:", head.morphTargetDictionary);
-      } else {
-         console.warn("⚠️ No morph targets found on " + obj);
-      }
-   }, [scene, isRecognizer, modelPosition]);
-
-   // 🎙️ Lip sync animation
-   useFrame((_, delta) => {
-      if (!headRef.current) return;
-      const dict = headRef.current.morphTargetDictionary;
-      const influences = headRef.current.morphTargetInfluences;
-      if (!dict || !influences) return;
-
-      const mouthIndex = dict["mouthOpen"];
-      const smileIndex = dict["mouthSmile"];
-
-      if (isSpeaking) {
-         t.current += delta * 10;
-         influences[mouthIndex] = ((Math.sin(t.current) + 1) / 2) * 0.6;
-         influences[smileIndex] = 0.2;
-      } else {
-         influences[mouthIndex] = THREE.MathUtils.lerp(
-            influences[mouthIndex],
-            0,
-            0.2
-         );
-         influences[smileIndex] = THREE.MathUtils.lerp(
-            influences[smileIndex],
-            0,
-            0.2
-         );
-      }
-   });
-
-   return <primitive object={scene} position={[0, -1, 0]} />;
-}
-
 // --- Main Page Component (Updated) ---
 export default function Page() {
+   const [avatarEmotion, setAvatarEmotion] = useState("idle");
    const [isSpeaking, setIsSpeaking] = useState(false);
-   const [recognizer, setRecognizer] = useState<SpeechRecognition | null>(null);
-   const [expression, setExpression] = useState("neutral");
    const [thinking, setThinking] = useState(false);
+   const [recognizer, setRecognizer] = useState<SpeechRecognition | null>(null);
    const [showSuggestions, setShowSuggestions] = useState(true);
    const [transcript, setTranscript] = useState("");
    const [modelPosition, setModelPosition] = useState("near");
@@ -260,64 +195,140 @@ export default function Page() {
    // 💬 Text-to-Speech with emotion
    // *** 2. UPDATED: Made this function safer ***
    const speakWithEmotion = (dialogue: string) => {
-      setIsSpeaking(true);
-      let textToSpeak = dialogue;
-      let mood = "happy"; // Default to happy for our teacher
+      // Flexible parser: splits anywhere tags appear
+      const regex = /\[(.*?)\]/g;
 
-      // Check if the dialogue *already* has an emotion tag
-      if (dialogue.startsWith("[")) {
-         const parts = dialogue.split(/\[(.*?)\]/).filter(Boolean);
-         if (parts.length >= 2) {
-            mood = parts[0].trim().toLowerCase();
-            textToSpeak = parts[1].trim();
+      const segments: { mood: string; text: string }[] = [];
+
+      let lastIndex = 0;
+      let currentMood = ""; // default mood
+      let match;
+
+      while ((match = regex.exec(dialogue)) !== null) {
+         const moodTag = match[1].trim().toLowerCase();
+         const textBeforeTag = dialogue.slice(lastIndex, match.index).trim();
+
+         if (textBeforeTag.length > 0) {
+            segments.push({ mood: currentMood, text: textBeforeTag });
          }
-      }
-      // If no tag, we'll just use the default 'happy' mood and speak the full text
 
-      setExpression(mood);
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      const voices = speechSynthesis.getVoices();
-
-      // Find a good voice
-      const voiceSelected =
-         voices.find((v) => v.name.includes("Microsoft Heera")) || // Good natural voice
-         voices.find((v) => v.name.includes("Samantha")) ||
-         voices.find((v) => v.lang === "en-US") || // Find any US-English voice
-         voices[0]; // Fallback
-
-      console.log(voiceSelected);
-
-      utterance.voice = voiceSelected;
-
-      switch (mood) {
-         case "happy":
-            utterance.pitch = 1.3;
-            utterance.rate = 1.5;
-            break;
-         case "calm":
-            utterance.pitch = 1.0;
-            utterance.rate = 0.9;
-            break;
-         case "angry":
-            utterance.pitch = 0.8;
-            utterance.rate = 1.3;
-            break;
-         case "sad":
-            utterance.pitch = 0.7;
-            utterance.rate = 0.8;
-            break;
-         default: // 'neutral' or any other
-            utterance.pitch = 1.0;
-            utterance.rate = 1.0;
+         currentMood = moodTag;
+         lastIndex = regex.lastIndex;
       }
 
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => {
-         setIsSpeaking(false);
+      // final text after last tag
+      const remainingText = dialogue.slice(lastIndex).trim();
+      if (remainingText.length > 0) {
+         segments.push({ mood: currentMood, text: remainingText });
+      }
+
+      console.log("Segments:", segments);
+
+      // If no emotion tags were found → speak normally
+      if (segments.length === 1 && segments[0].mood === "neutral") {
+         speechSynthesis.cancel();
+         const utter = new SpeechSynthesisUtterance(segments[0].text);
+         const voices = speechSynthesis.getVoices();
+         const voiceSelected =
+            voices.find((v) => v.name.includes("Microsoft Heera")) ||
+            voices.find((v) => v.name.includes("Samantha")) ||
+            voices.find((v) => v.lang === "en-US") ||
+            voices[0];
+
+         console.log("Voice Selected: ", voiceSelected);
+
+         utter.voice = voiceSelected;
+
+         // Apply voice settings for the mood
+         switch (segments[0].mood) {
+            case "happy":
+               utter.pitch = 1.3;
+               utter.rate = 1.4;
+               break;
+            case "thinking":
+            case "calm":
+               utter.pitch = 1.0;
+               utter.rate = 0.9;
+               break;
+            case "angry":
+               utter.pitch = 0.8;
+               utter.rate = 1.2;
+               break;
+            case "sad":
+               utter.pitch = 0.7;
+               utter.rate = 0.85;
+               break;
+            case "neutral":
+            default:
+               utter.pitch = 1.0;
+               utter.rate = 1.0;
+         }
+
+         utter.onend = () => speakNext();
+
+         speechSynthesis.speak(utter);
+         return;
+      }
+
+      // Sequential speaking
+      let index = 0;
+
+      const speakNext = () => {
+         if (index >= segments.length) {
+            setIsSpeaking(false);
+            setAvatarEmotion("idle");
+            return;
+         }
+
+         const { mood, text } = segments[index];
+         index++;
+
+         setAvatarEmotion(mood);
+
+         const utter = new SpeechSynthesisUtterance(text);
+
+         const voices = speechSynthesis.getVoices();
+         const voiceSelected =
+            voices.find((v) => v.name.includes("Microsoft Heera")) ||
+            voices.find((v) => v.name.includes("Samantha")) ||
+            voices.find((v) => v.lang === "en-US") ||
+            voices[0];
+
+         console.log("Voice Selected: ", voiceSelected);
+
+         utter.voice = voiceSelected;
+
+         // Apply voice settings for the mood
+         switch (mood) {
+            case "happy":
+               utter.pitch = 1.3;
+               utter.rate = 1.4;
+               break;
+            case "thinking":
+            case "calm":
+               utter.pitch = 1.0;
+               utter.rate = 0.9;
+               break;
+            case "angry":
+               utter.pitch = 0.8;
+               utter.rate = 1.2;
+               break;
+            case "sad":
+               utter.pitch = 0.7;
+               utter.rate = 0.85;
+               break;
+            default:
+               utter.pitch = 1.0;
+               utter.rate = 1.0;
+         }
+
+         utter.onend = () => speakNext();
+
+         speechSynthesis.speak(utter);
       };
 
-      speechSynthesis.cancel(); // Clear queue
-      speechSynthesis.speak(utterance);
+      speechSynthesis.cancel();
+      speakNext();
    };
 
    useEffect(() => {
@@ -329,7 +340,7 @@ export default function Page() {
 
    // Your test dialogue, unchanged
    const testDialogue =
-      "[happy] Hey there! It’s great to see you. [calm] Let's take a moment to think carefully. [sad] I can’t believe that happened! [angry] Sometimes things just don’t go our way.";
+      "[happy] Hey there! It’s great to see you. [thinking] Let's take a moment to think carefully. [sad] I can’t believe that happened! [angry] Sometimes things just don’t go our way.";
 
    return (
       // --- JSX is unchanged, it looks great ---
@@ -366,9 +377,11 @@ export default function Page() {
                      enablePan={false}
                   />
                   <Avatar
+                     isActive={recognizer !== null}
+                     emotion={avatarEmotion}
+                     speaking={isSpeaking}
                      modelPosition={modelPosition}
-                     isRecognizer={recognizer !== null}
-                     isSpeaking={isSpeaking}
+                     thinking={thinking}
                   />
                </Canvas>
                {recognizer === null && (
@@ -520,6 +533,7 @@ export default function Page() {
                                     className={`
                               relative min-w-96 w-max max-w-4xl
                               px-8 py-4
+                              cursor-pointer
                               rounded-full
                               text-center text-white text-xl font-semibold
 
