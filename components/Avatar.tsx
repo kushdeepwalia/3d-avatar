@@ -36,7 +36,7 @@ export default function Avatar({
          "/animations/HappyHandFBX.fbx",
          "/animations/HeadNodYesFBX.fbx",
          "/animations/HeadNoFBX.fbx",
-         "/animations/IdleFBX1.fbx",
+         "/animations/IdleFBX.fbx",
          "/animations/PointingFBX.fbx",
          "/animations/SadIdleFBX.fbx",
          "/animations/TalkingFBX.fbx",
@@ -95,7 +95,7 @@ export default function Avatar({
       }
 
       // If speaking → talking animation
-      if (speaking) {
+      if (speaking && manager.actions["Idle"].isRunning()) {
          manager.play("Talking");
          return;
       }
@@ -156,7 +156,7 @@ export default function Avatar({
       if (speaking) {
          t.current += delta * 10;
          influences[mouthIndex] = ((Math.sin(t.current) + 1) / 2) * 0.6;
-         influences[smileIndex] = 0.5;
+         influences[smileIndex] = 0.2;
       } else {
          influences[mouthIndex] = THREE.MathUtils.lerp(
             influences[mouthIndex],
@@ -166,7 +166,7 @@ export default function Avatar({
          influences[smileIndex] = THREE.MathUtils.lerp(
             influences[smileIndex],
             0,
-            0.5
+            0.2
          );
       }
    });
