@@ -66,19 +66,19 @@ async function askGPT(
 
    try {
       setThinking(true);
-      const response = await fetch(
-         "https://9joeylte75.execute-api.ap-south-1.amazonaws.com/chat",
-         {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
-         }
-      );
-      // const response = await fetch("http://127.0.0.1:8000/chat", {
-      //    method: "POST",
-      //    headers: { "Content-Type": "application/json" },
-      //    body: JSON.stringify(requestBody),
-      // });
+      // const response = await fetch(
+      //    "https://9joeylte75.execute-api.ap-south-1.amazonaws.com/chat",
+      //    {
+      //       method: "POST",
+      //       headers: { "Content-Type": "application/json" },
+      //       body: JSON.stringify(requestBody),
+      //    }
+      // );
+      const response = await fetch("http://127.0.0.1:8000/chat", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(requestBody),
+      });
 
       // const response = await fetch(
       //    `https://api.billioncolors.com/ask?prompt=${encodeURIComponent(
@@ -241,7 +241,7 @@ export default function Page() {
 
          // Apply voice settings for the mood
          switch (segments[0].mood as any) {
-            case "greeting":
+            case "greet":
             case "happy":
                utter.pitch = 1.3;
                utter.rate = 1.4;
@@ -290,7 +290,7 @@ export default function Page() {
 
          const voices = speechSynthesis.getVoices();
          const voiceSelected =
-            voices.find((v) => v.name.includes("Microsoft Heera")) ||
+            voices.find((v) => v.name.includes("Microsoft Ravi")) ||
             voices.find((v) => v.name.includes("Samantha")) ||
             voices.find((v) => v.lang === "en-US") ||
             voices[0];
@@ -341,7 +341,7 @@ export default function Page() {
 
    // Your test dialogue, unchanged
    const testDialogue =
-      "[greeting] Hey there! It’s great to see you. [thinking] Let's take a moment to think carefully. [sad] I can’t believe that happened! [angry] Sometimes things just don’t go our way.";
+      "[greet] Hey there! It’s great to see you. [thinking] Let's take a moment to think carefully. [sad] I can’t believe that happened! [angry] Sometimes things just don’t go our way.";
 
    return (
       // --- JSX is unchanged, it looks great ---
@@ -445,20 +445,14 @@ export default function Page() {
                         shadow-[0_20px_60px_rgba(0,0,0,0.25)]
                         "
                         >
-                           <div className="z-20 w-full h-max flex flex-col gap-x-10">
+                           <div className="z-20 w-full h-max flex flex-col gap-y-10">
                               <div
                                  onClick={() => {
                                     modelPosition === "far"
                                        ? setModelPosition("near")
                                        : setModelPosition("far");
                                  }}
-                                 className={`${
-                                    isSpeaking
-                                       ? ""
-                                       : !listening
-                                       ? ""
-                                       : "bg-white"
-                                 } flex items-center border-white border-2 justify-center px-3 py-3 w-full rounded-full`}
+                                 className={` flex items-center border-white border-2 justify-center px-3 py-3 w-full rounded-full`}
                               >
                                  {modelPosition === "far" ? (
                                     <Minimize
@@ -480,7 +474,7 @@ export default function Page() {
                                  }
                                  className={`${
                                     !listening ? "" : "bg-white"
-                                 } flex items-center border-white mt-10 border-2 justify-center ${
+                                 } flex items-center border-white border-2 justify-center ${
                                     isSpeaking
                                        ? "px-4 py-[23px] bg-white"
                                        : "px-3 py-3"
@@ -495,6 +489,24 @@ export default function Page() {
                                        color={!listening ? "white" : "#7cb5ec"}
                                     />
                                  )}
+                              </div>
+                              <div
+                                 onClick={async () => {
+                                    let pro = prompt("Ask ?");
+                                    if (pro !== null) {
+                                       await askGPT(
+                                          pro,
+                                          speakWithEmotion,
+                                          chatHistory,
+                                          setChatHistory,
+                                          thinking,
+                                          setThinking
+                                       );
+                                    }
+                                 }}
+                                 className="flex cursor-pointer items-center border-white border-2 justify-center px-3 py-3 w-full rounded-full"
+                              >
+                                 I
                               </div>
                            </div>
                            <div

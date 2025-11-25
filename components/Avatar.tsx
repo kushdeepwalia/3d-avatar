@@ -107,20 +107,23 @@ export default function Avatar({
          case "happy":
             manager.play("HappyHand");
             break;
-         case "greeting":
+         case "greet":
             manager.play("Greeting");
             break;
          case "sad":
             manager.play("SadIdle");
             break;
-         case "angry":
+         case "clap":
+            manager.play("Clapping");
+            break;
+         case "yes":
+            manager.play("HeadNodYes");
+            break;
+         case "no":
             manager.play("HeadNo");
             break;
-         case "calm":
-            manager.play("Idle");
-            break;
-         case "thinking": // just in case
-            manager.play("Thinking");
+         case "point":
+            manager.play("Pointing");
             break;
          case "idle":
          default:
@@ -139,6 +142,7 @@ export default function Avatar({
 
       const mouthIndex = dict["mouthOpen"];
       const smileIndex = dict["mouthSmile"];
+      // console.log(mouthIndex, smileIndex);
 
       if (speaking) {
          t.current += delta * 10;
