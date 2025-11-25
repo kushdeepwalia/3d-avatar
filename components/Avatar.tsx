@@ -95,7 +95,11 @@ export default function Avatar({
       }
 
       // If speaking → talking animation
-      if (speaking && manager.actions["Idle"].isRunning()) {
+      if (
+         speaking &&
+         (manager.actions["Idle"].isRunning() ||
+            manager.actions["Thinking"].isRunning())
+      ) {
          manager.play("Talking");
          return;
       }
@@ -128,6 +132,7 @@ export default function Avatar({
          case "think":
             manager.play("Thinking");
             break;
+         case "":
          case "talk":
             manager.play("Talking");
             break;
