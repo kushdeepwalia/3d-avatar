@@ -36,7 +36,7 @@ export default function Avatar({
          "/animations/HappyHandFBX.fbx",
          "/animations/HeadNodYesFBX.fbx",
          "/animations/HeadNoFBX.fbx",
-         "/animations/IdleFBX.fbx",
+         "/animations/IdleFBX1.fbx",
          "/animations/PointingFBX.fbx",
          "/animations/SadIdleFBX.fbx",
          "/animations/TalkingFBX.fbx",
@@ -81,7 +81,7 @@ export default function Avatar({
       const head = avatar.getObjectByName(obj) as THREE.SkinnedMesh;
       if (head && head.morphTargetDictionary) {
          headRef.current = head;
-         // console.log("✅ Morph targets:", head.morphTargetDictionary);
+         console.log("✅ Morph targets:", head.morphTargetDictionary);
       } else {
          console.warn("⚠️ No morph targets found on " + obj);
       }
@@ -125,8 +125,15 @@ export default function Avatar({
          case "point":
             manager.play("Pointing");
             break;
+         case "think":
+            manager.play("Thinking");
+            break;
+         case "talk":
+            manager.play("Talking");
+            break;
          case "idle":
          default:
+            // avatar.rotation.x = -0.2;
             manager.play("Idle");
             break;
       }
@@ -144,10 +151,12 @@ export default function Avatar({
       const smileIndex = dict["mouthSmile"];
       // console.log(mouthIndex, smileIndex);
 
+      // console.log("speaking:", speaking);
+
       if (speaking) {
          t.current += delta * 10;
          influences[mouthIndex] = ((Math.sin(t.current) + 1) / 2) * 0.6;
-         influences[smileIndex] = 0.2;
+         influences[smileIndex] = 0.5;
       } else {
          influences[mouthIndex] = THREE.MathUtils.lerp(
             influences[mouthIndex],
@@ -157,7 +166,7 @@ export default function Avatar({
          influences[smileIndex] = THREE.MathUtils.lerp(
             influences[smileIndex],
             0,
-            0.2
+            0.5
          );
       }
    });
@@ -165,12 +174,12 @@ export default function Avatar({
    return (
       <group
          ref={rootRef}
-         position={modelPosition === "near" ? [0, -8.9, -1.3] : [0, -2.9, -1.3]}
-         rotation={[-0.3, 0, 0]}
+         position={modelPosition === "near" ? [0, -7.8, -1.3] : [0, -2.7, -1.3]}
+         rotation={modelPosition === "near" ? [-0.26, 0, 0] : [-0.35, 0, 0]}
       >
          <primitive
             object={avatar}
-            scale={modelPosition === "near" ? 4.8 : 1.6}
+            scale={modelPosition === "near" ? 4.55 : 1.7}
          />
       </group>
    );

@@ -10,7 +10,12 @@ import {
 } from "@react-three/drei";
 import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils.js";
 import * as THREE from "three";
-import { Maximize, MicrophoneLarge, Minimize } from "@solar-icons/react";
+import {
+   Keyboard,
+   Maximize,
+   MicrophoneLarge,
+   Minimize,
+} from "@solar-icons/react";
 import Avatar from "@/components/Avatar";
 
 // --- Type Definitions ---
@@ -265,8 +270,12 @@ export default function Page() {
                utter.rate = 1.0;
          }
 
-         utter.onend = () => speakNext();
+         utter.onend = () => {
+            setIsSpeaking(false);
+            speakNext();
+         };
 
+         setIsSpeaking(true);
          speechSynthesis.speak(utter);
          return;
       }
@@ -323,12 +332,17 @@ export default function Page() {
                utter.rate = 1.0;
          }
 
-         utter.onend = () => speakNext();
+         utter.onend = () => {
+            setIsSpeaking(false);
+            speakNext();
+         };
 
+         setIsSpeaking(true);
          speechSynthesis.speak(utter);
       };
 
       speechSynthesis.cancel();
+      setIsSpeaking(false);
       speakNext();
    };
 
@@ -490,6 +504,27 @@ export default function Page() {
                                     />
                                  )}
                               </div>
+                              {/* <div>
+                                 <select
+                                    onChange={(e) =>
+                                       setAvatarEmotion(e.target.value)
+                                    }
+                                    value={avatarEmotion}
+                                    name="animate"
+                                    id="animate"
+                                 >
+                                    <option value="idle">Nothing</option>
+                                    <option value="clap">Clap</option>
+                                    <option value="greet">Greet</option>
+                                    <option value="happy">Happy Hand</option>
+                                    <option value="yes">Yes</option>
+                                    <option value="no">No</option>
+                                    <option value="point">Point</option>
+                                    <option value="sad">Sad</option>
+                                    <option value="talk">Talk</option>
+                                    <option value="think">Think</option>
+                                 </select>
+                              </div> */}
                               <div
                                  onClick={async () => {
                                     let pro = prompt("Ask ?");
@@ -506,7 +541,11 @@ export default function Page() {
                                  }}
                                  className="flex cursor-pointer items-center border-white border-2 justify-center px-3 py-3 w-full rounded-full"
                               >
-                                 I
+                                 <Keyboard
+                                    size={50}
+                                    weight="Bold"
+                                    color={"white"}
+                                 />
                               </div>
                            </div>
                            <div
